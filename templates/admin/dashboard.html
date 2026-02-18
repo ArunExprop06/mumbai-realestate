@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-speedometer2"></i> Admin Dashboard</h3>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="dash-stat bg-primary rounded-3">
+                <i class="bi bi-building bg-icon"></i>
+                <h3>{{ total_properties }}</h3>
+                <p>Total Properties</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="dash-stat bg-warning rounded-3">
+                <i class="bi bi-clock bg-icon"></i>
+                <h3>{{ pending_properties }}</h3>
+                <p>Pending Approval</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="dash-stat bg-success rounded-3">
+                <i class="bi bi-people bg-icon"></i>
+                <h3>{{ total_agents }}</h3>
+                <p>Agents/Brokers</p>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="dash-stat rounded-3" style="background:var(--accent)">
+                <i class="bi bi-telephone bg-icon"></i>
+                <h3>{{ total_enquiries }}</h3>
+                <p>Total Enquiries</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm text-center py-3">
+                <i class="bi bi-whatsapp text-success fs-3"></i>
+                <h5 class="fw-bold mb-0">{{ whatsapp_clicks }}</h5>
+                <small class="text-muted">WhatsApp Clicks</small>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm text-center py-3">
+                <i class="bi bi-telephone text-primary fs-3"></i>
+                <h5 class="fw-bold mb-0">{{ phone_clicks }}</h5>
+                <small class="text-muted">Phone Clicks</small>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm text-center py-3">
+                <i class="bi bi-person-exclamation text-warning fs-3"></i>
+                <h5 class="fw-bold mb-0">{{ pending_agents }}</h5>
+                <small class="text-muted">Pending Agents</small>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <a href="{{ url_for('admin.bulk_upload') }}" class="card border-0 shadow-sm text-center py-3 text-decoration-none">
+                <i class="bi bi-cloud-upload text-info fs-3"></i>
+                <h6 class="fw-bold mb-0 text-dark">Bulk Upload</h6>
+                <small class="text-muted">CSV / Excel</small>
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Nav -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-4">
+            <a href="{{ url_for('admin.manage_properties') }}" class="type-icon-card">
+                <i class="bi bi-buildings"></i>
+                <h6 class="small">Properties</h6>
+            </a>
+        </div>
+        <div class="col-md-2 col-4">
+            <a href="{{ url_for('admin.manage_users') }}" class="type-icon-card">
+                <i class="bi bi-people"></i>
+                <h6 class="small">Users</h6>
+            </a>
+        </div>
+        <div class="col-md-2 col-4">
+            <a href="{{ url_for('admin.manage_localities') }}" class="type-icon-card">
+                <i class="bi bi-geo-alt"></i>
+                <h6 class="small">Localities</h6>
+            </a>
+        </div>
+        <div class="col-md-2 col-4">
+            <a href="{{ url_for('admin.bulk_upload') }}" class="type-icon-card">
+                <i class="bi bi-cloud-upload"></i>
+                <h6 class="small">Bulk Upload</h6>
+            </a>
+        </div>
+        <div class="col-md-2 col-4">
+            <a href="{{ url_for('admin.analytics') }}" class="type-icon-card">
+                <i class="bi bi-graph-up"></i>
+                <h6 class="small">Analytics</h6>
+            </a>
+        </div>
+        <div class="col-md-2 col-4">
+            <a href="{{ url_for('agent.add_property') }}" class="type-icon-card">
+                <i class="bi bi-plus-circle"></i>
+                <h6 class="small">Add Property</h6>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Properties -->
+    {% if recent_properties %}
+    <h5 class="fw-bold mb-3">Recent Properties</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="admin-table">
+                <tr>
+                    <th>Property</th>
+                    <th>Agent</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prop in recent_properties %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('public.property_detail', slug=prop.slug) }}" class="text-decoration-none fw-bold">{{ prop.title[:40] }}...</a>
+                    </td>
+                    <td>{{ prop.owner.name if prop.owner else 'N/A' }}</td>
+                    <td>{{ prop.formatted_price }}</td>
+                    <td>
+                        {% if prop.is_approved %}
+                        <span class="badge bg-success">Approved</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not prop.is_approved %}
+                        <form method="POST" action="{{ url_for('admin.approve_property', id=prop.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-success btn-sm"><i class="bi bi-check"></i> Approve</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

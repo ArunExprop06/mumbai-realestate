@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}My Properties{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">My Properties</h3>
+        <a href="{{ url_for('agent.add_property') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Property
+        </a>
+    </div>
+
+    {% if properties %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="admin-table">
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Approved</th>
+                    <th>Views</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prop in properties %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('public.property_detail', slug=prop.slug) }}" class="text-decoration-none fw-bold">
+                            {{ prop.title[:50] }}{% if prop.title|length > 50 %}...{% endif %}
+                        </a>
+                        <br><small class="text-muted">{{ prop.property_type|title }} | {{ prop.listing_type|title }}</small>
+                    </td>
+                    <td>{{ prop.property_type|title }}</td>
+                    <td class="fw-bold">{{ prop.formatted_price }}</td>
+                    <td><span class="status-{{ prop.status }} fw-bold">{{ prop.status|title }}</span></td>
+                    <td>
+                        {% if prop.is_approved %}
+                        <span class="badge bg-success">Approved</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ prop.views_count }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('agent.edit_property', id=prop.id) }}" class="btn btn-outline-primary" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if prop.status == 'active' %}
+                            <form method="POST" action="{{ url_for('agent.change_status', id=prop.id, status='sold') }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-outline-success" title="Mark Sold"><i class="bi bi-check-circle"></i></button>
+                            </form>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('agent.delete_property', id=prop.id) }}" class="d-inline" onsubmit="return confirm('Delete this property?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btn btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if pagination.pages > 1 %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% for p in pagination.iter_pages() %}
+                {% if p %}
+                <li class="page-item {{ 'active' if p == pagination.page }}">
+                    <a class="page-link" href="{{ url_for('agent.my_properties', page=p) }}">{{ p }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-house-add display-1 text-muted"></i>
+        <h4 class="mt-3">No properties yet</h4>
+        <p class="text-muted">Start listing your properties to reach buyers</p>
+        <a href="{{ url_for('agent.add_property') }}" class="btn btn-primary">Add Your First Property</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0">Dashboard</h3>
+        <a href="{{ url_for('agent.add_property') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Property
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="dash-stat bg-primary rounded-3">
+                <i class="bi bi-building bg-icon"></i>
+                <h3>{{ my_properties }}</h3>
+                <p>My Properties</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-stat bg-success rounded-3">
+                <i class="bi bi-eye bg-icon"></i>
+                <h3>{{ total_views }}</h3>
+                <p>Total Views</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="dash-stat rounded-3" style="background:var(--accent)">
+                <i class="bi bi-telephone bg-icon"></i>
+                <h3>{{ enquiry_clicks }}</h3>
+                <p>Enquiry Clicks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <a href="{{ url_for('agent.add_property') }}" class="type-icon-card">
+                <i class="bi bi-plus-square"></i>
+                <h6>Add Property</h6>
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <a href="{{ url_for('agent.my_properties') }}" class="type-icon-card">
+                <i class="bi bi-list-ul"></i>
+                <h6>My Listings</h6>
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <a href="{{ url_for('agent.profile') }}" class="type-icon-card">
+                <i class="bi bi-person-gear"></i>
+                <h6>My Profile</h6>
+            </a>
+        </div>
+        <div class="col-md-3 col-6">
+            <a href="{{ url_for('public.home') }}" class="type-icon-card">
+                <i class="bi bi-globe"></i>
+                <h6>View Website</h6>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Listings -->
+    {% if recent %}
+    <h5 class="fw-bold mb-3">Recent Listings</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="admin-table">
+                <tr>
+                    <th>Property</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Views</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prop in recent %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('public.property_detail', slug=prop.slug) }}" class="text-decoration-none fw-bold">
+                            {{ prop.title }}
+                        </a>
+                        {% if not prop.is_approved %}
+                        <span class="badge bg-warning text-dark ms-1">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ prop.formatted_price }}</td>
+                    <td><span class="status-{{ prop.status }} fw-bold">{{ prop.status|title }}</span></td>
+                    <td>{{ prop.views_count }}</td>
+                    <td class="text-muted small">{{ prop.created_at.strftime('%d %b %Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

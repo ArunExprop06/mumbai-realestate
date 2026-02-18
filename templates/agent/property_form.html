@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} Property{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <h3 class="fw-bold mb-4">
+                <i class="bi bi-{{ 'pencil' if editing else 'plus-circle' }}"></i>
+                {{ 'Edit' if editing else 'Add New' }} Property
+            </h3>
+
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- Basic Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Basic Information</h5>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Property Title *</label>
+                                <input type="text" name="title" class="form-control" value="{{ property.title if editing else '' }}" placeholder="e.g. Spacious 2 BHK in Andheri West" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Property Type *</label>
+                                <select name="property_type" class="form-select" required>
+                                    {% for val, label in [('flat','Flat / Apartment'),('house','House'),('villa','Villa'),('office','Office'),('shop','Shop'),('plot','Plot'),('warehouse','Warehouse')] %}
+                                    <option value="{{ val }}" {{ 'selected' if editing and property.property_type == val }}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Listing Type *</label>
+                                <select name="listing_type" class="form-select" required>
+                                    <option value="buy" {{ 'selected' if editing and property.listing_type == 'buy' }}>For Sale</option>
+                                    <option value="rent" {{ 'selected' if editing and property.listing_type == 'rent' }}>For Rent</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Locality *</label>
+                                <select name="locality_id" class="form-select">
+                                    <option value="">Select Locality</option>
+                                    {% for loc in localities %}
+                                    <option value="{{ loc.id }}" {{ 'selected' if editing and property.locality_id == loc.id }}>{{ loc.name }} ({{ loc.zone }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price & Size -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Price & Size</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Price *</label>
+                                <input type="number" name="price" class="form-control" step="0.01" value="{{ property.price if editing else '' }}" placeholder="e.g. 85" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Price Unit</label>
+                                <select name="price_unit" class="form-select">
+                                    <option value="lakh" {{ 'selected' if editing and property.price_unit == 'lakh' }}>Lakhs</option>
+                                    <option value="crore" {{ 'selected' if editing and property.price_unit == 'crore' }}>Crores</option>
+                                    <option value="month" {{ 'selected' if editing and property.price_unit == 'month' }}>Per Month (Rent)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">BHK</label>
+                                <select name="bhk" class="form-select">
+                                    <option value="">N/A</option>
+                                    {% for b in range(1, 7) %}
+                                    <option value="{{ b }}" {{ 'selected' if editing and property.bhk == b }}>{{ b }} BHK</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Built-up Area (sqft)</label>
+                                <input type="number" name="area_sqft" class="form-control" value="{{ property.area_sqft if editing and property.area_sqft else '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Carpet Area (sqft)</label>
+                                <input type="number" name="carpet_area" class="form-control" value="{{ property.carpet_area if editing and property.carpet_area else '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Floor Number</label>
+                                <input type="number" name="floor_number" class="form-control" value="{{ property.floor_number if editing and property.floor_number is not none else '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Total Floors</label>
+                                <input type="number" name="total_floors" class="form-control" value="{{ property.total_floors if editing and property.total_floors else '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Property Details</h5>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Property Age (years)</label>
+                                <input type="number" name="age_years" class="form-control" value="{{ property.age_years if editing and property.age_years is not none else '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Furnished</label>
+                                <select name="furnished" class="form-select">
+                                    <option value="unfurnished" {{ 'selected' if editing and property.furnished == 'unfurnished' }}>Unfurnished</option>
+                                    <option value="semi" {{ 'selected' if editing and property.furnished == 'semi' }}>Semi Furnished</option>
+                                    <option value="fully" {{ 'selected' if editing and property.furnished == 'fully' }}>Fully Furnished</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Facing</label>
+                                <select name="facing" class="form-select">
+                                    <option value="">Select</option>
+                                    {% for f in ['North', 'South', 'East', 'West', 'North-East', 'North-West', 'South-East', 'South-West'] %}
+                                    <option value="{{ f }}" {{ 'selected' if editing and property.facing == f }}>{{ f }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Address</label>
+                                <input type="text" name="address" class="form-control" value="{{ property.address if editing else '' }}" placeholder="Full address">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Description</label>
+                                <textarea name="description" class="form-control" rows="5" placeholder="Describe the property in detail...">{{ property.description if editing else '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amenities -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Amenities</h5>
+                        <div class="row g-2">
+                            {% set all_amenities = ['Parking','Lift','Gym','Swimming Pool','Security','Power Backup','Club House','Garden','Children Play Area','Terrace','Jogging Track','Fire Safety','Cafeteria','CCTV','Intercom','Rainwater Harvesting','Vastu Compliant','Piped Gas','Visitor Parking'] %}
+                            {% set prop_amenities = property.amenities if editing else [] %}
+                            {% for am in all_amenities %}
+                            <div class="col-lg-3 col-md-4 col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="amenities" value="{{ am }}" id="am_{{ loop.index }}"
+                                        {{ 'checked' if am in prop_amenities }}>
+                                    <label class="form-check-label small" for="am_{{ loop.index }}">
+                                        <i class="bi {{ amenity_icons.get(am, 'bi-check-circle') }} text-primary"></i> {{ am }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Images -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3">Property Images</h5>
+
+                        {% if editing and property.all_images %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Current Images</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for img in property.all_images %}
+                                <div class="position-relative">
+                                    <img src="{{ url_for('static', filename='uploads/properties/thumbs/' + img.filename) }}" class="img-upload-preview" alt="Image {{ loop.index }}">
+                                    <div class="mt-1 d-flex gap-1">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="primary_image" value="{{ img.id }}" {{ 'checked' if img.is_primary }}>
+                                            <label class="form-check-label small">Primary</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="delete_images" value="{{ img.id }}">
+                                            <label class="form-check-label small text-danger">Delete</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <label class="form-label fw-bold">{{ 'Add More' if editing else 'Upload' }} Images (max 10)</label>
+                        <input type="file" name="images" class="form-control" multiple accept="image/*" onchange="previewImages(this)">
+                        <div id="imagePreviewContainer" class="mt-2"></div>
+                        <small class="text-muted">Accepted: JPG, PNG, WebP. Max 16MB each.</small>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="bi bi-check-circle"></i> {{ 'Update' if editing else 'Submit' }} Property
+                    </button>
+                    <a href="{{ url_for('agent.my_properties') }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

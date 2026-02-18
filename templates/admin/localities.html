@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Manage Localities{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-geo-alt"></i> Manage Localities</h3>
+
+    <!-- Add Locality -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h6 class="fw-bold mb-3">Add New Locality</h6>
+            <form method="POST" action="{{ url_for('admin.add_locality') }}" class="row g-2 align-items-end">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="col-md-4">
+                    <label class="form-label small">Locality Name</label>
+                    <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Andheri East" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">Zone</label>
+                    <select name="zone" class="form-select form-select-sm" required>
+                        <option value="South Mumbai">South Mumbai</option>
+                        <option value="Western Suburbs">Western Suburbs</option>
+                        <option value="Central Suburbs">Central Suburbs</option>
+                        <option value="Harbour Line">Harbour Line</option>
+                        <option value="Thane">Thane</option>
+                        <option value="Navi Mumbai">Navi Mumbai</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-plus"></i> Add
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Localities by Zone -->
+    {% for zone_name, locs in zones.items() %}
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <h6 class="fw-bold mb-3">
+                <span class="zone-badge">{{ zone_name }}</span>
+                <small class="text-muted ms-2">{{ locs|length }} localities</small>
+            </h6>
+            <div class="row g-2">
+                {% for loc in locs %}
+                <div class="col-md-4 col-6">
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                        <span class="small fw-bold">{{ loc.name }}</span>
+                        <form method="POST" action="{{ url_for('admin.delete_locality', id=loc.id) }}" class="d-inline" onsubmit="return confirm('Delete {{ loc.name }}?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-outline-danger btn-sm py-0 px-1"><i class="bi bi-x"></i></button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Bulk Upload{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h3 class="fw-bold mb-4"><i class="bi bi-cloud-upload"></i> Bulk Upload Properties</h3>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Upload CSV or Excel File</label>
+                            <input type="file" name="file" class="form-control" accept=".csv,.xlsx,.xls" required>
+                            <small class="text-muted">Supported formats: CSV, XLSX, XLS</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload"></i> Upload & Import
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">File Format Instructions</h5>
+                    <p class="text-muted">Your file should include these columns:</p>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Required</th>
+                                    <th>Values</th>
+                                </tr>
+                            </thead>
+                            <tbody class="small">
+                                <tr><td><code>title</code></td><td>Yes</td><td>Property title</td></tr>
+                                <tr><td><code>property_type</code></td><td>Yes</td><td>flat, house, villa, office, shop, plot, warehouse</td></tr>
+                                <tr><td><code>listing_type</code></td><td>Yes</td><td>buy, rent</td></tr>
+                                <tr><td><code>price</code></td><td>Yes</td><td>Numeric (e.g. 85, 1.5)</td></tr>
+                                <tr><td><code>price_unit</code></td><td>No</td><td>lakh, crore, month</td></tr>
+                                <tr><td><code>bhk</code></td><td>No</td><td>1, 2, 3, 4, 5</td></tr>
+                                <tr><td><code>area_sqft</code></td><td>No</td><td>Built-up area</td></tr>
+                                <tr><td><code>carpet_area</code></td><td>No</td><td>Carpet area</td></tr>
+                                <tr><td><code>floor_number</code></td><td>No</td><td>Floor number</td></tr>
+                                <tr><td><code>total_floors</code></td><td>No</td><td>Total floors</td></tr>
+                                <tr><td><code>age_years</code></td><td>No</td><td>Property age</td></tr>
+                                <tr><td><code>furnished</code></td><td>No</td><td>unfurnished, semi, fully</td></tr>
+                                <tr><td><code>facing</code></td><td>No</td><td>North, South, East, West</td></tr>
+                                <tr><td><code>locality</code></td><td>No</td><td>Locality name (e.g. Andheri)</td></tr>
+                                <tr><td><code>address</code></td><td>No</td><td>Full address</td></tr>
+                                <tr><td><code>description</code></td><td>No</td><td>Property description</td></tr>
+                                <tr><td><code>amenities</code></td><td>No</td><td>Comma-separated (e.g. Parking,Lift,Gym)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info small mb-0 mt-3">
+                        <i class="bi bi-info-circle"></i> All imported properties are automatically approved and set to active status. Images can be added later by editing individual properties.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

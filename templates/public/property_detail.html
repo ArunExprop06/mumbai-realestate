@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% block title %}{{ property.title }}{% endblock %}
+{% block meta_desc %}{{ property.description[:160] if property.description else property.title }}{% endblock %}
+{% block og_title %}{{ property.title }} - {{ property.formatted_price }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('public.home') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('public.properties') }}">Properties</a></li>
+                    {% if property.locality %}
+                    <li class="breadcrumb-item"><a href="{{ url_for('public.locality_detail', slug=property.locality.slug) }}">{{ property.locality.name }}</a></li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{{ property.title }}</li>
+                </ol>
+            </nav>
+
+            <!-- Image Gallery -->
+            {% set images = property.all_images %}
+            {% if images %}
+            <div class="detail-gallery mb-4">
+                <div id="propCarousel" class="carousel slide" data-bs-ride="false">
+                    <div class="carousel-inner">
+                        {% for img in images %}
+                        <div class="carousel-item {{ 'active' if loop.first }}">
+                            <img src="{{ url_for('static', filename='uploads/properties/' + img.filename) }}" class="d-block w-100" alt="{{ property.title }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if images|length > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#propCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#propCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                    <div class="carousel-indicators">
+                        {% for img in images %}
+                        <button type="button" data-bs-target="#propCarousel" data-bs-slide-to="{{ loop.index0 }}" class="{{ 'active' if loop.first }}"></button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% if images|length > 1 %}
+                <div class="d-flex gap-2 mt-2 overflow-auto">
+                    {% for img in images %}
+                    <img src="{{ url_for('static', filename='uploads/properties/thumbs/' + img.filename) }}"
+                         class="rounded cursor-pointer" style="width:80px;height:60px;object-fit:cover;cursor:pointer;opacity:{{ '1' if loop.first else '0.6' }}"
+                         onclick="document.querySelector('#propCarousel').querySelectorAll('.carousel-item').forEach((el,i) => el.classList.toggle('active', i==={{ loop.index0 }})); this.parentElement.querySelectorAll('img').forEach(i => i.style.opacity='0.6'); this.style.opacity='1';"
+                         alt="Thumbnail {{ loop.index }}">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="detail-gallery mb-4 bg-light rounded d-flex align-items-center justify-content-center" style="height:350px">
+                <div class="text-center text-muted">
+                    <i class="bi bi-image display-1"></i>
+                    <p>No images available</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Title & Price -->
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">{{ property.title }}</h1>
+                    {% if property.locality %}
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-geo-alt-fill text-danger"></i>
+                        {{ property.address or property.locality.name }}, {{ property.locality.zone }}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    <div class="detail-price">{{ property.formatted_price }}</div>
+                    {% if property.listing_type == 'buy' and property.price and property.price_unit in ('lakh', 'crore') %}
+                    {% set price_lakhs = property.price * 100 if property.price_unit == 'crore' else property.price %}
+                    <small class="text-muted">EMI ~&#8377;{{ (price_lakhs * 100000 * 0.0075 * (1.0075 ** 240) / ((1.0075 ** 240) - 1) / 1000)|int }}K/month</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Key Details -->
+            <div class="detail-meta mb-4">
+                {% if property.bhk %}
+                <div class="detail-meta-item">
+                    <i class="bi bi-door-open"></i>
+                    <div class="value">{{ property.bhk }} BHK</div>
+                    <div class="label">Bedrooms</div>
+                </div>
+                {% endif %}
+                {% if property.area_sqft %}
+                <div class="detail-meta-item">
+                    <i class="bi bi-arrows-angle-expand"></i>
+                    <div class="value">{{ property.area_sqft|int }}</div>
+                    <div class="label">Sqft (Built-up)</div>
+                </div>
+                {% endif %}
+                {% if property.carpet_area %}
+                <div class="detail-meta-item">
+                    <i class="bi bi-bounding-box"></i>
+                    <div class="value">{{ property.carpet_area|int }}</div>
+                    <div class="label">Carpet Area</div>
+                </div>
+                {% endif %}
+                {% if property.floor_number is not none %}
+                <div class="detail-meta-item">
+                    <i class="bi bi-layers"></i>
+                    <div class="value">{{ property.floor_number }}/{{ property.total_floors or '?' }}</div>
+                    <div class="label">Floor</div>
+                </div>
+                {% endif %}
+                {% if property.age_years is not none %}
+                <div class="detail-meta-item">
+                    <i class="bi bi-calendar3"></i>
+                    <div class="value">{{ property.age_years }} yrs</div>
+                    <div class="label">Property Age</div>
+                </div>
+                {% endif %}
+                <div class="detail-meta-item">
+                    <i class="bi bi-lamp"></i>
+                    <div class="value">{{ property.furnished|title }}</div>
+                    <div class="label">Furnished</div>
+                </div>
+                {% if property.facing %}
+                <div class="detail-meta-item">
+                    <i class="bi bi-compass"></i>
+                    <div class="value">{{ property.facing }}</div>
+                    <div class="label">Facing</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Amenities -->
+            {% if property.amenities %}
+            <div class="mb-4">
+                <h5 class="fw-bold mb-3">Amenities</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for amenity in property.amenities %}
+                    <span class="amenity-chip">
+                        <i class="bi {{ amenity_icons.get(amenity, 'bi-check-circle') }}"></i>
+                        {{ amenity }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            {% if property.description %}
+            <div class="mb-4">
+                <h5 class="fw-bold mb-3">Description</h5>
+                <p class="text-muted" style="line-height:1.8">{{ property.description }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Share -->
+            <div class="mb-4">
+                <button id="shareBtn" class="btn btn-outline-secondary btn-sm" onclick="shareProperty(window.location.href, '{{ property.title }}')">
+                    <i class="bi bi-share"></i> Share Property
+                </button>
+                <span class="text-muted small ms-2"><i class="bi bi-eye"></i> {{ property.views_count }} views</span>
+            </div>
+        </div>
+
+        <!-- Sidebar - Agent Contact -->
+        <div class="col-lg-4">
+            <div class="agent-card mb-4">
+                <h6 class="fw-bold mb-3">Contact Agent</h6>
+                {% if property.owner %}
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    {% if property.owner.photo %}
+                    <img src="{{ url_for('static', filename='uploads/users/' + property.owner.photo) }}" class="agent-avatar" alt="{{ property.owner.name }}">
+                    {% else %}
+                    <div class="agent-avatar d-flex align-items-center justify-content-center bg-primary text-white fs-4 fw-bold">
+                        {{ property.owner.name[0] }}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <strong>{{ property.owner.name }}</strong>
+                        {% if property.owner.company %}
+                        <br><small class="text-muted">{{ property.owner.company }}</small>
+                        {% endif %}
+                        {% if property.owner.rera_number %}
+                        <br><small class="text-muted">RERA: {{ property.owner.rera_number }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <a href="https://wa.me/91{{ property.owner.phone }}?text=Hi%2C%20I%20am%20interested%20in%20your%20property%3A%20{{ property.title|urlencode }}%20({{ request.url|urlencode }})"
+                   class="btn btn-whatsapp w-100 mb-2" target="_blank" data-property-id="{{ property.id }}">
+                    <i class="bi bi-whatsapp"></i> WhatsApp
+                </a>
+                <a href="tel:+91{{ property.owner.phone }}" class="btn btn-phone w-100" data-property-id="{{ property.id }}">
+                    <i class="bi bi-telephone"></i> Call {{ property.owner.phone }}
+                </a>
+                {% else %}
+                <p class="text-muted">Contact information not available</p>
+                {% endif %}
+            </div>
+
+            <!-- Property Info Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Property Info</h6>
+                    <table class="table table-sm table-borderless">
+                        <tr><td class="text-muted">Type</td><td class="fw-bold">{{ property.property_type|title }}</td></tr>
+                        <tr><td class="text-muted">For</td><td class="fw-bold">{{ property.listing_type|title }}</td></tr>
+                        <tr><td class="text-muted">Status</td><td><span class="fw-bold status-{{ property.status }}">{{ property.status|title }}</span></td></tr>
+                        <tr><td class="text-muted">Listed</td><td>{{ property.created_at.strftime('%d %b %Y') }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Properties -->
+    {% if similar %}
+    <div class="mt-5">
+        <h4 class="fw-bold mb-3">Similar Properties</h4>
+        <div class="row g-3">
+            {% for prop in similar %}
+            <div class="col-lg-3 col-md-6">
+                <a href="{{ url_for('public.property_detail', slug=prop.slug) }}" class="text-decoration-none">
+                    <div class="card property-card">
+                        <div class="card-img-wrapper" style="height:160px">
+                            {% if prop.primary_image %}
+                            <img src="{{ url_for('static', filename='uploads/properties/thumbs/' + prop.primary_image.filename) }}" alt="{{ prop.title }}" loading="lazy">
+                            {% else %}
+                            <div class="no-image"><i class="bi bi-building"></i></div>
+                            {% endif %}
+                            <span class="price-badge" style="font-size:0.85rem">{{ prop.formatted_price }}</span>
+                        </div>
+                        <div class="card-body py-2 px-3">
+                            <h6 class="card-title" style="font-size:0.9rem;min-height:auto">{{ prop.title }}</h6>
+                            {% if prop.locality %}
+                            <small class="text-muted"><i class="bi bi-geo-alt"></i> {{ prop.locality.name }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

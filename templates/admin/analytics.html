@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-graph-up"></i> Analytics</h3>
+
+    <div class="row g-4">
+        <!-- Top Properties by Enquiry -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-trophy text-warning"></i> Top Properties by Enquiries</h5>
+                    {% if top_properties %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="admin-table">
+                                <tr><th>#</th><th>Property</th><th>Clicks</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for title, slug, clicks in top_properties %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td><a href="{{ url_for('public.property_detail', slug=slug) }}" class="text-decoration-none">{{ title[:30] }}...</a></td>
+                                    <td><span class="badge bg-primary">{{ clicks }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No enquiry data yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Localities -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-danger"></i> Popular Localities</h5>
+                    {% if popular_localities %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="admin-table">
+                                <tr><th>#</th><th>Locality</th><th>Zone</th><th>Properties</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for name, zone, count in popular_localities %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td class="fw-bold">{{ name }}</td>
+                                    <td><span class="zone-badge">{{ zone }}</span></td>
+                                    <td><span class="badge bg-success">{{ count }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No data yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Agents -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-badge text-primary"></i> Top Agents</h5>
+                    {% if top_agents %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="admin-table">
+                                <tr><th>#</th><th>Agent</th><th>Company</th><th>Listings</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for name, company, count in top_agents %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td class="fw-bold">{{ name }}</td>
+                                    <td>{{ company or '-' }}</td>
+                                    <td><span class="badge bg-info">{{ count }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No data yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
